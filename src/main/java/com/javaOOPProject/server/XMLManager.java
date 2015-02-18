@@ -28,11 +28,19 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.javaOOPProject.server.registeredClients.RegisteredClients;
+import com.javaOOPProject.server.registeredClients.RegisteredClients.Client;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.bind.Marshaller;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -40,30 +48,40 @@ import javax.xml.bind.Marshaller;
  */
 public class XMLManager {
 
-    public static String createResponse() {
+    private static RegisteredClients rc;
+
+    public static String createResponse(Client client, boolean isLogged) {
         try {
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
-            // root elements
             Document doc = docBuilder.newDocument();
             Element rootElement = doc.createElement("response");
             doc.appendChild(rootElement);
 
-            // firstname elements
             Element loginSuccess = doc.createElement("loginSuccess");
-            loginSuccess.appendChild(doc.createTextNode("true"));
+            loginSuccess.appendChild(doc.createTextNode(String.valueOf(isLogged)));
             rootElement.appendChild(loginSuccess);
 
-            // lastname elements
             Element serverMessage = doc.createElement("serverMessage");
             serverMessage.appendChild(doc.createTextNode("error0"));
             rootElement.appendChild(serverMessage);
 
-            // nickname elements
             Element permissionForCrypt = doc.createElement("permissionForCrypt");
-            permissionForCrypt.appendChild(doc.createTextNode("true"));
+            permissionForCrypt.appendChild(doc.createTextNode(String.valueOf(client.isPermissionForCrypt())));
             rootElement.appendChild(permissionForCrypt);
+
+            if (client.getCardNumbers() != null) {
+                for (int i = 0; i < client.getCardNumbers().size() - 1; i++) {
+                    Element card = doc.createElement("card");
+                    card.appendChild(doc.createTextNode(client.getCardNumbers().get(i).toString()));
+                    rootElement.appendChild(card);
+                }
+            } else {
+                Element card = doc.createElement("card");
+                card.appendChild(doc.createTextNode(""));
+                rootElement.appendChild(card);
+            }
 
             // write the content into xml String
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -85,11 +103,12 @@ public class XMLManager {
     public static RegisteredClients loadData(String path) throws JAXBException, IOException {
 
         String xmlData = readFile(path);
-        
+
         JAXBContext context = JAXBContext.newInstance(RegisteredClients.class);
         Unmarshaller un = context.createUnmarshaller();
         StringReader sReader = new StringReader(xmlData);
         RegisteredClients reg = (RegisteredClients) un.unmarshal(sReader);
+        XMLManager.rc = new RegisteredClients(reg);
         return reg;
 
     }
@@ -105,12 +124,84 @@ public class XMLManager {
         }
         return stringBuilder.toString();
     }
-    
-    public static void parceToXMLString(RegisteredClients reg, String path) throws JAXBException, FileNotFoundException{
+
+    public static void parceToXMLString(RegisteredClients reg, String path) throws JAXBException, FileNotFoundException {
+        XMLManager.rc = reg;
         JAXBContext context = JAXBContext.newInstance(RegisteredClients.class);
         Marshaller m = context.createMarshaller();
         m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
         OutputStream os = new FileOutputStream(path);
         m.marshal(reg, os);
+    }
+
+//    public static RegisteredClients getClients(){
+//        return XMLManager.rc;
+//    }
+    public static boolean isRegistered(ObjectInputStream request) {
+        
+        
+         String temp = null;
+        try {
+            temp = request.readUTF();
+        } catch (IOException ex) {
+            Logger.getLogger(XMLManager.class.getName()).log(Level.SEVERE, null, ex);
+        }
+		Pattern pattern = Pattern.compile("<username>(.+?)</username>");
+		Matcher matcher = pattern.matcher(temp);
+		matcher.find();
+		String username = matcher.group(1);
+		
+		pattern = Pattern.compile("<password>(.+?)</password>");
+		matcher = pattern.matcher(temp);
+		matcher.find();
+		String password = matcher.group(1);
+                
+                for (int i = 0; i < rc.getArraySize(); i++) {
+                    if (rc.getClientByIndex(i).getUsername().equals(username) && rc.getClientByIndex(i).getPassword().equals(password)) {
+                        return true;
+                    }
+        }
+        
+//        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+//        DocumentBuilder dBuilder;
+//        NodeList nListUserName = null;
+//        NodeList nListPassword = null;
+//        
+//        System.out.println("recieved message");
+//        try {
+//            dBuilder = dbFactory.newDocumentBuilder();
+//            dbFactory.setValidating(false);
+//            
+//            
+//            Document doc = dBuilder.parse(request);
+//            System.out.println("recieved message");
+//            doc.getDocumentElement().normalize();
+//            nListUserName = doc.getElementsByTagName("username");
+//            nListUserName = doc.getElementsByTagName("password");
+//
+//            System.out.println("recieved message");
+//
+//            String username = nListUserName.item(0).getTextContent();
+//            String password = nListPassword.item(0).getTextContent();
+//
+//            System.out.println(username);
+//            System.out.println(password);
+//
+//        } catch (SAXException ex) {
+//            Logger.getLogger(XMLManager.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (IOException ex) {
+//            Logger.getLogger(XMLManager.class.getName()).log(Level.SEVERE, null, ex);
+//        } catch (ParserConfigurationException ex) {
+//            Logger.getLogger(XMLManager.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        for (int i = 0; i < XMLManager.rc.getArraySize() ; i++) {
+//            
+//            if (XMLManager.rc.getClientByIndex(i).getUsername().toString().equals(nListUserName.item(0).getNodeValue().toString()) &&
+//                XMLManager.rc.getClientByIndex(i).getPassword().toString().equals(nListPassword.item(0).getNodeValue().toString()) ) {
+//                return true;
+//            }
+//            
+//        }
+        return false;
     }
 }

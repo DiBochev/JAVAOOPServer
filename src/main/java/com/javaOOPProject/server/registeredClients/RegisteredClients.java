@@ -29,9 +29,30 @@ public class RegisteredClients {
 	private RegisteredClients(){
 	}
         
+        public RegisteredClients(RegisteredClients reg){
+            for (int i = 0; i < reg.getArraySize(); i++) {
+                this.array = (ArrayList<Client>) reg.getArray().clone();
+            }
+        }
+        private ArrayList<Client> getArray(){
+            return this.array;
+        }
+        
+        private void addClient(Client c){
+            array.add(c);
+        }
+        
+        public int getArraySize(){
+            return array.size() - 1;
+        }
+        
         public Client getFirstClient(){
             currentUserShown++;
             return array.get(0);
+        }
+        
+        public Client getClientByIndex (int i){
+            return array.get(i);
         }
         
         public Client getNextClient(){
@@ -87,6 +108,11 @@ public class RegisteredClients {
 		public String getUsername() {
 			return username;
 		}
+                
+                public ArrayList<String> getCardNumbers(){
+                    return this.cards;
+                }
+                
 //		public void setUsername(String username) {
 //			this.username = username;
 //		}

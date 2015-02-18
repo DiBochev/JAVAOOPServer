@@ -5,6 +5,7 @@
  */
 package com.javaOOPProject.server;
 
+import com.javaOOPProject.server.registeredClients.RegisteredClients;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.concurrent.ExecutorService;
@@ -19,6 +20,7 @@ public class Server {
 	private final int PORT = 12345;
 	private ServerSocket server;
 	private ExecutorService clientPool;
+        private RegisteredClients rc;
 	
 	public Server(){
 		initializeServer();
