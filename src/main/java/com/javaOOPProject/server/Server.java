@@ -22,6 +22,10 @@ public class Server {
 	private ExecutorService clientPool;
         private RegisteredClients rc;
 	
+        public ServerSocket getServer(){
+            return this.server;
+        }
+        
 	public Server(){
 		initializeServer();
 		clientPool = Executors.newCachedThreadPool();
@@ -38,7 +42,7 @@ public class Server {
 	public void start() throws IOException{
 		while (true) {
 			executeClient(new RequestHandler(server.accept()));
-		}
+		} 
 	}
 	
 	private void executeClient(RequestHandler rh){

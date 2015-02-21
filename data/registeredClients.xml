@@ -1,32 +1,29 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<clients>
+<registeredClients>
+  <clients>
     <client>
-        <username>admin1</username>
-        <password>admin1admin</password>
-        <permissionForCrypt>false</permissionForCrypt>
-        <cryptedCard>34234234344234</cryptedCard>
-        <cryptedCard>34234234344234</cryptedCard>
-        <cryptedCard>34234234344234</cryptedCard>
+      <username>admin</username>
+      <password>adminadmin</password>
+      <permissionForCrypt>true</permissionForCrypt>
+      <cards>
+        <string>45334535</string>
+        <string>45334535</string>
+        <string>45334535</string>
+      </cards>
     </client>
     <client>
-        <username>admin2</username>
-        <password>admin2admin</password>
-        <permissionForCrypt>false</permissionForCrypt>
-        <cryptedCard>34234234344234</cryptedCard>
-        <cryptedCard>34234234344234</cryptedCard>
-        <cryptedCard>34234234344234</cryptedCard>
+      <username>admin2</username>
+      <password>admin2admin</password>
+      <permissionForCrypt>false</permissionForCrypt>
+      <cards>
+        <string>45334535</string>
+        <string>45334535</string>
+        <string>45334535</string>
+      </cards>
     </client>
     <client>
-        <username>admin3</username>
-        <password>admin3admin</password>
-        <permissionForCrypt>false</permissionForCrypt>
-        <cryptedCard>34234234344234</cryptedCard>
-        <cryptedCard>34234234344234</cryptedCard>
-        <cryptedCard>34234234344234</cryptedCard>
+      <username>admin23</username>
+      <password>admin23</password>
+      <permissionForCrypt>true</permissionForCrypt>
     </client>
-    <client>
-        <username>admin</username>
-        <password>admin</password>
-        <permissionForCrypt>true</permissionForCrypt>
-    </client>
-</clients>
+  </clients>
+</registeredClients>

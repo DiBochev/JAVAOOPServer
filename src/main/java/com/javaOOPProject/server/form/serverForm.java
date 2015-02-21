@@ -79,6 +79,8 @@ public class serverForm extends javax.swing.JFrame {
         changeUserButtonAllUsers = new javax.swing.JButton();
         nextUserButton = new javax.swing.JButton();
         previousUserButton = new javax.swing.JButton();
+        externalIPAdressNotification = new javax.swing.JLabel();
+        externalIPAdress = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -154,7 +156,7 @@ public class serverForm extends javax.swing.JFrame {
                     .addGroup(addNewUserPanelLayout.createSequentialGroup()
                         .addGap(185, 185, 185)
                         .addComponent(addUserButtonNewUserTap)))
-                .addContainerGap(178, Short.MAX_VALUE))
+                .addContainerGap(156, Short.MAX_VALUE))
         );
         addNewUserPanelLayout.setVerticalGroup(
             addNewUserPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -235,7 +237,7 @@ public class serverForm extends javax.swing.JFrame {
                                 .addComponent(passwordLabelAllUsers)))
                         .addGap(18, 18, 18)
                         .addComponent(userNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(nextUserButton))
                     .addGroup(allUsersPanelLayout.createSequentialGroup()
                         .addGap(197, 197, 197)
@@ -266,6 +268,10 @@ public class serverForm extends javax.swing.JFrame {
 
         TabbedPanel.addTab("All users", allUsersPanel);
 
+        externalIPAdressNotification.setText("IP:");
+
+        externalIPAdress.setText("ip");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -278,25 +284,34 @@ public class serverForm extends javax.swing.JFrame {
                         .addGap(82, 82, 82))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(TabbedPanel)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addGap(26, 26, 26)
+                                .addComponent(externalIPAdressNotification)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(externalIPAdress, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(serverStopButton)
                                     .addComponent(stoppedServerNotificationLabel))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(startedServerNotificationLabel)
-                                    .addComponent(startServerButton)))
-                            .addComponent(TabbedPanel))
+                                    .addComponent(startServerButton))))
                         .addGap(21, 21, 21))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(startServerButton)
-                    .addComponent(serverStopButton))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(9, 9, 9)
+                        .addComponent(externalIPAdress))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(startServerButton)
+                        .addComponent(serverStopButton)
+                        .addComponent(externalIPAdressNotification)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(startedServerNotificationLabel)
@@ -318,7 +333,7 @@ public class serverForm extends javax.swing.JFrame {
                 try {
                     registratedUsers = XMLManager.loadData(PATH_TO_DATA);
                     showRegistratedUser(registratedUsers.getFirstClient());
-                } catch (JAXBException | IOException  ex) {
+                } catch (IOException  ex) {
                     errorLabel.setText(ServerGUIMessages.CANNOT_LOAD_FILE_WITH_USERS.getMessage());
                     errorLabel.setVisible(true);
                     ex.printStackTrace();
@@ -335,7 +350,6 @@ public class serverForm extends javax.swing.JFrame {
         }
         
         errorLabel.setVisible(false);
-        setEnableFields(true);
         this.startServerThread = new Thread() {
             @Override
             public void run() {
@@ -350,6 +364,10 @@ public class serverForm extends javax.swing.JFrame {
             }
         };
         this.startServerThread.start();
+        
+        externalIPAdress.setText(server.getServer().getInetAddress().toString() + ":" + server.getServer().getLocalPort());
+        setEnableFields(true);
+        
 
         startServerButton.setEnabled(false);
         serverStopButton.setEnabled(true);
@@ -383,14 +401,14 @@ public class serverForm extends javax.swing.JFrame {
                     registratedUsers.getCurrentClient().setPermissionForCrypt(permissionCheckBoxAllUsers.isSelected());
                     try {
                         XMLManager.parceToXMLString(registratedUsers, PATH_TO_DATA);
-                    } catch (JAXBException ex) {
-                        ex.printStackTrace();
-                        errorLabel.setText(ServerGUIMessages.ERROR_SAVING_CHANGES.getMessage());
-                        errorLabel.setVisible(true);
-                    } catch (FileNotFoundException ex) {
+                    }catch (FileNotFoundException ex) {
                         errorLabel.setText(ServerGUIMessages.CANNOT_FIND_FILE_TO_SAVE.getMessage());
                         errorLabel.setVisible(true);
                         ex.printStackTrace();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                        errorLabel.setText(ServerGUIMessages.ERROR_SAVING_CHANGES.getMessage());
+                        errorLabel.setVisible(true);
                     }
                 }
             };
@@ -419,17 +437,17 @@ public class serverForm extends javax.swing.JFrame {
             return;
         }
         
-        registratedUsers.addClient(usernameTextFieldNewUserTap.getText(), firstPasswordFieldNewUserTap.getText(), permissionCheckBoxNewUserTap.isSelected());
+        registratedUsers.addClient(usernameTextFieldNewUserTap.getText(), usernameTextFieldNewUserTap.getText() + firstPasswordFieldNewUserTap.getText(), permissionCheckBoxNewUserTap.isSelected());
         
         Thread temp = new Thread(){
                 public void run(){
                     try {
                         XMLManager.parceToXMLString(registratedUsers, PATH_TO_DATA);
-                    } catch (JAXBException ex) {
-                        ex.printStackTrace();
-                        errorLabel.setText(ServerGUIMessages.ERROR_SAVING_CHANGES.getMessage());
+                    }catch (FileNotFoundException ex) {
+                        errorLabel.setText(ServerGUIMessages.CANNOT_FIND_FILE_TO_SAVE.getMessage());
                         errorLabel.setVisible(true);
-                    } catch (FileNotFoundException ex) {
+                        ex.printStackTrace();
+                    } catch (IOException ex) {
                         errorLabel.setText(ServerGUIMessages.CANNOT_FIND_FILE_TO_SAVE.getMessage());
                         errorLabel.setVisible(true);
                         ex.printStackTrace();
@@ -487,6 +505,9 @@ public class serverForm extends javax.swing.JFrame {
         this.usernameTextFieldNewUserTap.setEnabled(choise);
         this.changeUserButtonAllUsers.setEnabled(choise);
         this.permissionCheckBoxAllUsers.setEnabled(choise);
+        
+        this.externalIPAdress.setVisible(choise);
+        this.externalIPAdressNotification.setVisible(choise);
     }
 
       private boolean validator(JTextField field, String regex, String massage) {
@@ -506,6 +527,8 @@ public class serverForm extends javax.swing.JFrame {
     private javax.swing.JPanel allUsersPanel;
     private javax.swing.JButton changeUserButtonAllUsers;
     private javax.swing.JLabel errorLabel;
+    private javax.swing.JLabel externalIPAdress;
+    private javax.swing.JLabel externalIPAdressNotification;
     private javax.swing.JPasswordField firstPasswordFieldNewUserTap;
     private javax.swing.JButton nextUserButton;
     private javax.swing.JLabel passwordLabelAllUsers;
